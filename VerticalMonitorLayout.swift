@@ -47,8 +47,12 @@ configure { config in
 
     let macBookBounds = CGDisplayBounds(macBookDisplay)
     let monitorBounds = CGDisplayBounds(otherDisplay)
-    print("Main Display: x=\(macBookBounds.origin.x) y=\(macBookBounds.origin.y) width=\(macBookBounds.width) height=\(macBookBounds.height)")
-    print("External Display: x=\(monitorBounds.origin.x) y=\(monitorBounds.origin.y) width=\(monitorBounds.width) height=\(monitorBounds.height)")
+    print(
+        "Main Display: x=\(macBookBounds.origin.x) y=\(macBookBounds.origin.y) width=\(macBookBounds.width) height=\(macBookBounds.height)"
+    )
+    print(
+        "External Display: x=\(monitorBounds.origin.x) y=\(monitorBounds.origin.y) width=\(monitorBounds.width) height=\(monitorBounds.height)"
+    )
 
     let monitorX = (max(monitorBounds.width, macBookBounds.width) - min(monitorBounds.width, macBookBounds.width)) / -2
     let monitorY = -monitorBounds.height
