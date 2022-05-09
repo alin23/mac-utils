@@ -31,3 +31,5 @@ In a MacBook with 2 monitors setup, swap the external monitors around.
 In a MacBook with 1 monitor setup, mirror the MacBook display contents to the external monitor.
 
 [![add to shortcuts button](img/add-to-shortcuts.svg)](https://www.icloud.com/shortcuts/93b2496bd03b4c21886e2322409240cb)
+
+![mirrored MacBook in Display preferences](https://files.alinpanaitiu.com/mirror-macbook-to-monitor.png)
