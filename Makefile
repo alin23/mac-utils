@@ -1,4 +1,4 @@
-all: bin/SwapMonitors bin/VerticalMonitorLayout bin/runbg bin/runfg bin/MirrorMacBookToMonitor
+all: bin/SwapMonitors bin/VerticalMonitorLayout bin/HorizontalMonitorLayout bin/runbg bin/runfg bin/MirrorMacBookToMonitor
 
 bin/%: %.swift
 	swiftc $*.swift -o bin/$*-arm64
