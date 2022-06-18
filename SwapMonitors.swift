@@ -36,23 +36,29 @@ extension NSScreen {
 
         return Array(onlineDisplays.prefix(Int(displayCount)))
     }
+    
+    var displayID: CGDirectDisplayID? {
+        guard let id = deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
+        else { return nil }
+        return CGDirectDisplayID(id.uint32Value)
+    }
 }
 
 configure { config in
-    let macBookDisplay = CGMainDisplayID()
-    guard let firstDisplay = NSScreen.onlineDisplayIDs.first(where: { $0 != macBookDisplay }),
-          let secondDisplay = NSScreen.onlineDisplayIDs.first(where: { $0 != macBookDisplay && $0 != firstDisplay })
+    // let macBookDisplay = CGMainDisplayID()
+    guard let firstDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased.contains("vz27a") }).displayID,
+          let secondDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased.contains("vz27a") && $0.displayID != firstDisplay }).displayID
     else {
         print("Two external displays are needed")
         return false
     }
 
-    let macBookBounds = CGDisplayBounds(macBookDisplay)
+    // let macBookBounds = CGDisplayBounds(macBookDisplay)
     let firstMonitorBounds = CGDisplayBounds(firstDisplay)
     let secondMonitorBounds = CGDisplayBounds(secondDisplay)
-    print(
-        "Main Display: x=\(macBookBounds.origin.x) y=\(macBookBounds.origin.y) width=\(macBookBounds.width) height=\(macBookBounds.height)\n"
-    )
+    // print(
+    //    "Main Display: x=\(macBookBounds.origin.x) y=\(macBookBounds.origin.y) width=\(macBookBounds.width) height=\(macBookBounds.height)\n"
+    // )
     print(
         "External Display 1: x=\(firstMonitorBounds.origin.x) y=\(firstMonitorBounds.origin.y) width=\(firstMonitorBounds.width) height=\(firstMonitorBounds.height)"
     )
