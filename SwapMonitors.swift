@@ -46,8 +46,8 @@ extension NSScreen {
 
 configure { config in
     // let macBookDisplay = CGMainDisplayID()
-    guard let firstDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased.contains("vz27a") }).displayID,
-          let secondDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased.contains("vz27a") && $0.displayID != firstDisplay }).displayID
+    guard let firstDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("vz27a") }).displayID,
+          let secondDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("vz27a") && $0.displayID != firstDisplay }).displayID
     else {
         print("Two external displays are needed")
         return false
