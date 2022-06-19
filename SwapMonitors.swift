@@ -44,10 +44,18 @@ extension NSScreen {
     }
 }
 
+print("BEFORE\n")
+for screen in NSScreen.screens {
+    guard let id = screen.displayID else { continue }
+    print("\(screen.localizedName): \(id)")
+    print("  Frame: \(screen.frame)")
+    print("  Bounds: \(CGDisplayBounds(id))")
+}
+
 configure { config in
     // let macBookDisplay = CGMainDisplayID()
-    guard let firstDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("vz27a") }).displayID,
-          let secondDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("vz27a") && $0.displayID != firstDisplay }).displayID
+    guard let firstDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("vz27a") })?.displayID,
+          let secondDisplay = NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("vz27a") && $0.displayID != firstDisplay })?.displayID
     else {
         print("Two external displays are needed")
         return false
@@ -81,4 +89,12 @@ configure { config in
         Int32(firstMonitorBounds.origin.y.rounded())
     )
     return true
+}
+
+print("AFTER\n")
+for screen in NSScreen.screens {
+    guard let id = screen.displayID else { continue }
+    print("\(screen.localizedName): \(id)")
+    print("  Frame: \(screen.frame)")
+    print("  Bounds: \(CGDisplayBounds(id))")
 }
