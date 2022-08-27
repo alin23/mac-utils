@@ -1,4 +1,5 @@
-all: bin/SwapMonitors bin/VerticalMonitorLayout bin/HorizontalMonitorLayout bin/runbg bin/runfg bin/MirrorMacBookToMonitor bin/IsNowPlaying
+swiftfiles := $(patsubst %.swift,bin/%,$(wildcard *.swift))
+all: $(swiftfiles)
 
 bin/%: %.swift
 	swiftc $*.swift -o bin/$*-arm64
