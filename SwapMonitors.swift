@@ -109,6 +109,21 @@ let screenGroupsByName = [String: [NSScreen]](
 )
 
 func main() {
+    if CommandLine.arguments.count == 2, ["ids", "-h", "--help", "print-ids"].contains(CommandLine.arguments[1].lowercased()) {
+        if ["-h", "--help"].contains(CommandLine.arguments[1].lowercased()) {
+            print("Usage: \(CommandLine.arguments[0]) ID1 ID2 ")
+            print("IDs are optional if there are only 2 monitors with the same name\n")
+        }
+
+        let sortedIDs = externalIDs.sorted { d1, d2 in
+            CGDisplayBounds(d1).origin.x < CGDisplayBounds(d2).origin.x
+        }
+
+        print("IDs of monitors in order of appearance from left to right: \(sortedIDs)")
+        print("Names of monitors in order of appearance from left to right: \(sortedIDs.map { NSScreen.name(for: $0) ?? "Unknown" })")
+
+        return
+    }
     if CommandLine.arguments.count == 3, let first = Int(CommandLine.arguments[1]), let second = Int(CommandLine.arguments[2]) {
         let firstDisplay = CGDirectDisplayID(first)
         let secondDisplay = CGDirectDisplayID(second)
@@ -138,7 +153,7 @@ func main() {
         let sortedIDs = screensWithSameName.value.compactMap(\.displayID).sorted { d1, d2 in
             CGDisplayBounds(d1).origin.x < CGDisplayBounds(d2).origin.x
         }
-        print("Order of IDs appearance from left to right: \(sortedIDs)")
+        print("IDs of monitors in order of appearance from left to right: \(sortedIDs)")
 
         print("\nPass the IDs of the display that you want to swap as arguments")
         print("Example: \(CommandLine.arguments[0]) \(sortedIDs.first!) \(sortedIDs.last!)")
