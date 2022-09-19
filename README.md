@@ -41,3 +41,7 @@ Enable/disable HDR for a monitor where the **High Dynamic Range** checkbox is av
 [![add to shortcuts button](img/add-to-shortcuts.svg)](https://www.icloud.com/shortcuts/2f412b6ad9644aaf83e86bd53cb4294e)
 
 ![hdr checkbox in Display preferences](https://files.alinpanaitiu.com/hdr-checkbox.png)
+
+## RotateDisplay
+
+Change rotation of a display from the command line.

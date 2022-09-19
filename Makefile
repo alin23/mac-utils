@@ -13,6 +13,7 @@ MONITOR_COMPILER_FLAGS = \
 
 bin/SwapMonitors: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/ToggleHDR: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
+bin/RotateDisplay: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/%: %.swift
 	swiftc $(SWIFTC_FLAGS) -target arm64-apple-macos10.15.4 $*.swift -o bin/$*-arm64
 	swiftc $(SWIFTC_FLAGS) -target x86_64-apple-macos10.15.4 $*.swift -o bin/$*-x86

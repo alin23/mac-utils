@@ -35,28 +35,25 @@ extension NSScreen {
     }
 }
 
-func toggleHDR(display: MPDisplay) {
+func rotateDisplay(display: MPDisplay, orientation: Int32) {
     let id = display.displayID
     let name = display.displayName ?? ""
 
-    guard display.hasHDRModes else {
-        print("\nThe display does not support HDR control: \(name) [ID: \(id)]")
+    guard display.canChangeOrientation() else {
+        print("\nThe display does not support changing orientation: \(name) [ID: \(id)]")
         return
     }
 
-    if display.preferHDRModes() {
-        print("\nDisabling HDR for \(name) [ID: \(id)]")
-        display.setPreferHDRModes(false)
-    } else {
-        print("\nEnabling HDR for \(name) [ID: \(id)]")
-        display.setPreferHDRModes(true)
-    }
+    print("\nChanging orientation for \(name) [ID: \(id)]: \(display.orientation) -> \(orientation)")
+    display.orientation = orientation
 }
 
 func printDisplays(_ displays: [MPDisplay]) {
-    print("ID\tUUID                             \tHDR Control\tName")
+    print("ID\tUUID                             \tCan Change Orientation\tOrientation\tName")
     for panel in displays {
-        print("\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.hasHDRModes)      \t\(panel.displayName ?? "Unknown name")")
+        print(
+            "\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.canChangeOrientation())                \t\(panel.orientation)°        \t\(panel.displayName ?? "Unknown name")"
+        )
     }
 }
 
@@ -64,8 +61,10 @@ func main() {
     guard let mgr = MPDisplayMgr(), let displays = mgr.displays as? [MPDisplay] else { return }
     printDisplays(displays)
 
-    guard CommandLine.arguments.count >= 2 else {
-        print("\nUsage: \(CommandLine.arguments[0]) <id-uuid-or-name>")
+    guard CommandLine.arguments.count >= 3, let orientation = Int32(CommandLine.arguments[2]),
+          [0, 90, 180, 270].contains(orientation)
+    else {
+        print("\nUsage: \(CommandLine.arguments[0]) <id-uuid-or-name> 0|90|180|270")
         return
     }
 
@@ -75,19 +74,19 @@ func main() {
        let cursorDisplayID = NSScreen.withMouse?.displayID,
        let display = displays.first(where: { $0.displayID == cursorDisplayID })
     {
-        toggleHDR(display: display)
+        rotateDisplay(display: display, orientation: orientation)
         return
     }
     if let id = Int(arg), let display = displays.first(where: { $0.displayID == id }) {
-        toggleHDR(display: display)
+        rotateDisplay(display: display, orientation: orientation)
         return
     }
     if let uuid = UUID(uuidString: arg.uppercased()), let display = displays.first(where: { $0.uuid == uuid }) {
-        toggleHDR(display: display)
+        rotateDisplay(display: display, orientation: orientation)
         return
     }
     if let display = displays.first(where: { $0.displayName?.lowercased() == arg.lowercased() }) {
-        toggleHDR(display: display)
+        rotateDisplay(display: display, orientation: orientation)
         return
     }
 
