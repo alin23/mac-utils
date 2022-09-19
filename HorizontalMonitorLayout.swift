@@ -3,9 +3,9 @@ import Cocoa
 import Foundation
 
 func configure(_ action: (CGDisplayConfigRef) -> Bool) {
-    var config: CGDisplayConfigRef?
-    var err = CGBeginDisplayConfiguration(&config)
-    guard err == .success, let config = config else {
+    var configRef: CGDisplayConfigRef?
+    var err = CGBeginDisplayConfiguration(&configRef)
+    guard err == .success, let config = configRef else {
         print("Error with CGBeginDisplayConfiguration: \(err)")
         return
     }
@@ -39,6 +39,8 @@ extension NSScreen {
 }
 
 configure { config in
+    print("Usage: \(CommandLine.arguments[0]) [left|right] (default: right)\n")
+
     let macBookDisplay = CGMainDisplayID()
     guard let otherDisplay = NSScreen.onlineDisplayIDs.first(where: { $0 != macBookDisplay }) else {
         print("No external display detected")
@@ -54,7 +56,7 @@ configure { config in
         "External Display: x=\(monitorBounds.origin.x) y=\(monitorBounds.origin.y) width=\(monitorBounds.width) height=\(monitorBounds.height)"
     )
 
-    let monitorX = monitorBounds.width
+    let monitorX = CommandLine.arguments.contains("left") ? -monitorBounds.width : monitorBounds.width
     let monitorY = (max(monitorBounds.height, macBookBounds.height) - min(monitorBounds.height, macBookBounds.height)) / -2
 
     print("\nNew external display coordinates: x=\(monitorX) y=\(monitorY)")

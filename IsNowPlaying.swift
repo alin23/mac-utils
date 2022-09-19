@@ -1,6 +1,11 @@
 #!/usr/bin/env swift
 import Foundation
 
+if CommandLine.arguments.count >= 2, ["-h", "--help"].contains(CommandLine.arguments[1]) {
+    print("Usage: \(CommandLine.arguments[0]) [-q (exits with non-zero status code if not playing)]")
+    exit(0)
+}
+
 let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework"))!
 
 let MRMediaRemoteGetNowPlayingApplicationIsPlayingPointer = CFBundleGetFunctionPointerForName(
