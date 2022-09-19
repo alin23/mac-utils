@@ -168,6 +168,14 @@ let screenGroupsByName = [String: [NSScreen]](
     }
 )
 
+func printDisplays(_ displays: [MPDisplay]) {
+    print("ID\tUUID                             \tOrientation\tName")
+    for panel in displays {
+        print("\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.orientation)°        \t\(panel.displayName ?? "Unknown name")")
+    }
+    print("")
+}
+
 let ROTATION_ARG_SET: NSOrderedSet = ["--no-rotation", "--no-orientation", "-nr"]
 let PRINT_IDS_ARG_SET: NSOrderedSet = ["ids", "print-ids"]
 let HELP_ARG_SET: NSOrderedSet = ["-h", "--help"]
@@ -177,6 +185,10 @@ func main() {
     let argSet = Set(args)
     let noSwapRotation = ROTATION_ARG_SET.intersectsSet(argSet)
     let arg1 = args.count == 2 ? args[1].lowercased() : ""
+
+    if let displays = displays {
+        printDisplays(displays)
+    }
 
     if args.count == 2, PRINT_IDS_ARG_SET.contains(arg1) || HELP_ARG_SET.contains(arg1) {
         if HELP_ARG_SET.contains(arg1) {

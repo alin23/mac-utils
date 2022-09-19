@@ -27,12 +27,16 @@ func toggleHDR(display: MPDisplay) {
     }
 }
 
+func printDisplays(_ displays: [MPDisplay]) {
+    print("ID\tUUID                             \tHDR Control\tName")
+    for panel in displays {
+        print("\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.hasHDRModes)      \t\(panel.displayName ?? "Unknown name")")
+    }
+}
+
 func main() {
     guard let mgr = MPDisplayMgr(), let displays = mgr.displays as? [MPDisplay] else { return }
-    print("ID\tUUID                             \tSupports HDR Control\tName")
-    for panel in displays {
-        print("\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.hasHDRModes)\t\(panel.displayName ?? "Unknown name")")
-    }
+    printDisplays(displays)
 
     guard CommandLine.arguments.count >= 2 else {
         print("\nUsage: toggle-hdr <id-uuid-or-name>")
