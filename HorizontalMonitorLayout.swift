@@ -2,42 +2,6 @@
 import Cocoa
 import Foundation
 
-func configure(_ action: (CGDisplayConfigRef) -> Bool) {
-    var configRef: CGDisplayConfigRef?
-    var err = CGBeginDisplayConfiguration(&configRef)
-    guard err == .success, let config = configRef else {
-        print("Error with CGBeginDisplayConfiguration: \(err)")
-        return
-    }
-
-    guard action(config) else {
-        _ = CGCancelDisplayConfiguration(config)
-        return
-    }
-
-    err = CGCompleteDisplayConfiguration(config, .permanently)
-    guard err == .success else {
-        print("Error with CGCompleteDisplayConfiguration")
-        _ = CGCancelDisplayConfiguration(config)
-        return
-    }
-}
-
-extension NSScreen {
-    static var onlineDisplayIDs: [CGDirectDisplayID] {
-        let maxDisplays: UInt32 = 16
-        var onlineDisplays = [CGDirectDisplayID](repeating: 0, count: Int(maxDisplays))
-        var displayCount: UInt32 = 0
-
-        let err = CGGetOnlineDisplayList(maxDisplays, &onlineDisplays, &displayCount)
-        if err != .success {
-            print("Error on getting online displays: \(err)")
-        }
-
-        return Array(onlineDisplays.prefix(Int(displayCount)))
-    }
-}
-
 configure { config in
     print("Usage: \(CommandLine.arguments[0]) [left|right] (default: right)\n")
 

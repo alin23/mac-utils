@@ -2,63 +2,6 @@
 import Cocoa
 import Foundation
 
-func configure(_ action: (CGDisplayConfigRef) -> Bool) {
-    var configRef: CGDisplayConfigRef?
-    var err = CGBeginDisplayConfiguration(&configRef)
-    guard err == .success, let config = configRef else {
-        print("Error with CGBeginDisplayConfiguration: \(err)")
-        return
-    }
-
-    guard action(config) else {
-        _ = CGCancelDisplayConfiguration(config)
-        return
-    }
-
-    err = CGCompleteDisplayConfiguration(config, .permanently)
-    guard err == .success else {
-        print("Error with CGCompleteDisplayConfiguration")
-        _ = CGCancelDisplayConfiguration(config)
-        return
-    }
-}
-
-extension NSScreen {
-    var displayID: CGDirectDisplayID? {
-        guard let id = deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
-        else { return nil }
-        return CGDirectDisplayID(id.uint32Value)
-    }
-
-    static func name(for id: CGDirectDisplayID) -> String? {
-        screen(with: id)?.localizedName
-    }
-
-    static func screen(with id: CGDirectDisplayID) -> NSScreen? {
-        NSScreen.screens.first { $0.hasDisplayID(id) }
-    }
-
-    func hasDisplayID(_ id: CGDirectDisplayID) -> Bool {
-        guard let screenNumber = displayID else { return false }
-        return id == screenNumber
-    }
-
-    static var onlineDisplayIDs: [CGDirectDisplayID] {
-        let maxDisplays: UInt32 = 16
-        var onlineDisplays = [CGDirectDisplayID](repeating: 0, count: Int(maxDisplays))
-        var displayCount: UInt32 = 0
-
-        let err = CGGetOnlineDisplayList(maxDisplays, &onlineDisplays, &displayCount)
-        if err != .success {
-            print("Error on getting online displays: \(err)")
-        }
-
-        return Array(onlineDisplays.prefix(Int(displayCount)))
-    }
-}
-
-let NAME_STRIP_REGEX = try! NSRegularExpression(pattern: #"(.+)\s+\(\s*\d+\s*\)\s*$"#)
-
 func swap(firstDisplay: CGDirectDisplayID, secondDisplay: CGDirectDisplayID, rotation: Bool = true) {
     if let firstName = NSScreen.name(for: firstDisplay), let secondName = NSScreen.name(for: secondDisplay) {
         print("Swapping \(firstName) [ID: \(firstDisplay)] with \(secondName) [ID: \(secondDisplay)]\n")
@@ -93,7 +36,7 @@ func swap(firstDisplay: CGDirectDisplayID, secondDisplay: CGDirectDisplayID, rot
         return true
     }
 
-    guard rotation, let mgr = mgr, let displays = displays,
+    guard rotation, let mgr, let displays,
           let display1 = displays.first(where: { $0.displayID == firstDisplay }),
           let display2 = displays.first(where: { $0.displayID == secondDisplay })
     else { return }
@@ -116,38 +59,6 @@ func swap(firstDisplay: CGDirectDisplayID, secondDisplay: CGDirectDisplayID, rot
         display1.orientation = rotation2
         print("Swapping orientation for \(display2.displayName ?? secondDisplay.s): \(rotation2) -> \(rotation1)")
         display2.orientation = rotation1
-    }
-}
-
-extension BinaryInteger {
-    var s: String { String(self) }
-}
-
-extension MPDisplayMgr {
-    func reconfigure(tries: Int = 10, _ action: (MPDisplayMgr) -> Void) {
-        guard tryLock(tries: tries) else {
-            return
-        }
-
-        notifyWillReconfigure()
-        action(self)
-        notifyReconfigure()
-        unlockAccess()
-    }
-
-    func tryLock(tries: Int = 10) -> Bool {
-        for i in 1 ... tries {
-            if tryLockAccess() { return true }
-            print("Failed to acquire display manager lock (try: \(i))")
-            Thread.sleep(forTimeInterval: 0.05)
-        }
-        return false
-    }
-}
-
-extension Int32 {
-    var cg: CGDirectDisplayID {
-        CGDirectDisplayID(self)
     }
 }
 
@@ -186,7 +97,7 @@ func main() {
     let noSwapRotation = ROTATION_ARG_SET.intersectsSet(argSet)
     let arg1 = args.count == 2 ? args[1].lowercased() : ""
 
-    if let displays = displays {
+    if let displays {
         printDisplays(displays)
     }
 

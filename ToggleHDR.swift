@@ -2,39 +2,6 @@ import Cocoa
 import ColorSync
 import Foundation
 
-extension NSScreen {
-    var hasMouse: Bool {
-        let mouseLocation = NSEvent.mouseLocation
-        if NSMouseInRect(mouseLocation, frame, false) {
-            return true
-        }
-
-        guard let event = CGEvent(source: nil) else {
-            return false
-        }
-
-        let maxDisplays: UInt32 = 1
-        var displaysWithCursor = [CGDirectDisplayID](repeating: 0, count: Int(maxDisplays))
-        var displayCount: UInt32 = 0
-
-        let _ = CGGetDisplaysWithPoint(event.location, maxDisplays, &displaysWithCursor, &displayCount)
-        guard let id = displaysWithCursor.first else {
-            return false
-        }
-        return id == displayID
-    }
-
-    static var withMouse: NSScreen? {
-        screens.first { $0.hasMouse }
-    }
-
-    var displayID: CGDirectDisplayID? {
-        guard let id = deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
-        else { return nil }
-        return CGDirectDisplayID(id.uint32Value)
-    }
-}
-
 func toggleHDR(display: MPDisplay) {
     let id = display.displayID
     let name = display.displayName ?? ""
@@ -71,27 +38,13 @@ func main() {
 
     let arg = CommandLine.arguments[1]
 
-    if ["cursor", "current", "main"].contains(arg.lowercased()),
-       let cursorDisplayID = NSScreen.withMouse?.displayID,
-       let display = displays.first(where: { $0.displayID == cursorDisplayID })
-    {
-        toggleHDR(display: display)
-        return
-    }
-    if let id = Int(arg), let display = displays.first(where: { $0.displayID == id }) {
-        toggleHDR(display: display)
-        return
-    }
-    if let uuid = UUID(uuidString: arg.uppercased()), let display = displays.first(where: { $0.uuid == uuid }) {
-        toggleHDR(display: display)
-        return
-    }
-    if let display = displays.first(where: { $0.displayName?.lowercased() == arg.lowercased() }) {
-        toggleHDR(display: display)
+    guard let display = mgr.matchDisplay(filter: arg) else {
+        print("\nNo display found for query: \(arg)")
+
         return
     }
 
-    print("\nNo display found for query: \(arg)")
+    toggleHDR(display: display)
 }
 
 main()
