@@ -28,3 +28,4 @@ bool DisplayServicesHasAmbientLightCompensation(CGDirectDisplayID display);
 bool DisplayServicesAmbientLightCompensationEnabled(CGDirectDisplayID display);
 bool DisplayServicesIsSmartDisplay(CGDirectDisplayID display);
 void DisplayServicesBrightnessChanged(CGDirectDisplayID display, double brightness);
+CGError SLSGetDisplayList(uint32_t maxDisplays, CGDirectDisplayID *activeDisplays, uint32_t *displayCount);

@@ -8,6 +8,7 @@ MONITOR_COMPILER_FLAGS = \
     -framework CoreDisplay \
     -framework OSD \
     -framework MonitorPanel \
+    -framework SkyLight \
     -import-objc-header Headers/Bridging-Header.h \
     lib/Extensions.swift
 
@@ -18,7 +19,7 @@ bin/HorizontalMonitorLayout: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/VerticalMonitorLayout: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/MirrorMacBookToMonitor: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/%: %.swift
-	mkdir -p /tmp/$*
+	mkdir -p /tmp/$* || true
 	cp -f $*.swift /tmp/$*/main.swift && \
 	swiftc $(SWIFTC_FLAGS) -target arm64-apple-macos10.15.4 /tmp/$*/main.swift -o bin/$*-arm64 && \
 	swiftc $(SWIFTC_FLAGS) -target x86_64-apple-macos10.15.4 /tmp/$*/main.swift -o bin/$*-x86 && \

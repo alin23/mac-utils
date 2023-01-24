@@ -37,6 +37,32 @@ extension NSScreen {
         return Array(onlineDisplays.prefix(Int(displayCount)))
     }
 
+    static var activeDisplayIDs: [CGDirectDisplayID] {
+        let maxDisplays: UInt32 = 16
+        var activeDisplays = [CGDirectDisplayID](repeating: 0, count: Int(maxDisplays))
+        var displayCount: UInt32 = 0
+
+        let err = CGGetActiveDisplayList(maxDisplays, &activeDisplays, &displayCount)
+        if err != .success {
+            print("Error on getting active displays: \(err)")
+        }
+
+        return Array(activeDisplays.prefix(Int(displayCount)))
+    }
+
+    static var connectedDisplayIDs: [CGDirectDisplayID] {
+        let maxDisplays: UInt32 = 16
+        var connectedDisplays = [CGDirectDisplayID](repeating: 0, count: Int(maxDisplays))
+        var displayCount: UInt32 = 0
+
+        let err = SLSGetDisplayList(maxDisplays, &connectedDisplays, &displayCount)
+        if err != .success {
+            print("Error on getting connected displays: \(err)")
+        }
+
+        return Array(connectedDisplays.prefix(Int(displayCount)))
+    }
+
     var hasMouse: Bool {
         let mouseLocation = NSEvent.mouseLocation
         if NSMouseInRect(mouseLocation, frame, false) {
