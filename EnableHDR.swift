@@ -14,13 +14,6 @@ func enableHDR(display: MPDisplay) {
     display.setPreferHDRModes(true)
 }
 
-func printDisplays(_ displays: [MPDisplay]) {
-    print("ID\tUUID                             \tHDR Control\tName")
-    for panel in displays {
-        print("\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.hasHDRModes)      \t\(panel.displayName ?? "Unknown name")")
-    }
-}
-
 func main() {
     guard let mgr = MPDisplayMgr(), let displays = mgr.displays as? [MPDisplay] else { return }
 
