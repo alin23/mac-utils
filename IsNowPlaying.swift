@@ -24,11 +24,7 @@ MRMediaRemoteGetNowPlayingApplicationIsPlaying(DispatchQueue.main) { playing in
         return
     }
 
-    if playing {
-        exit(0)
-    } else {
-        exit(1)
-    }
+    exit(playing ? 0 : 1)
 }
 
 RunLoop.main.run(until: Date() + 0.1)

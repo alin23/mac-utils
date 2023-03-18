@@ -113,3 +113,10 @@ Prints true (or exits with code 0 on `-q`) if the Mac is currently playing any m
 
 - [IsNowPlaying.swift](/IsNowPlaying.swift)
 - [IsNowPlaying (compiled binary)](/bin/IsNowPlaying)
+
+## IsCameraOn
+
+Prints true (or exits with code 0 on `-q`) if the Mac camera is in use by any application.
+
+- [IsCameraOn.swift](/IsCameraOn.swift)
+- [IsCameraOn (compiled binary)](/bin/IsCameraOn)
