@@ -94,6 +94,9 @@ Change rotation of a display from the command line.
 
 Set brightness for Apple native displays from the command line.
 
+- [SetNativeBrightness.swift](/SetNativeBrightness.swift)
+- [SetNativeBrightness (compiled binary)](/bin/SetNativeBrightness)
+
 Works for the built-in MacBook and iMac screen, and Apple vendored displays like:
 
 - Studio Display
@@ -101,9 +104,6 @@ Works for the built-in MacBook and iMac screen, and Apple vendored displays like
 - LG Ultrafine for Mac
 - LED Cinema
 - Thunderbolt Display
-
-- [SetNativeBrightness.swift](/SetNativeBrightness.swift)
-- [SetNativeBrightness (compiled binary)](/bin/SetNativeBrightness)
 
 ---
 
