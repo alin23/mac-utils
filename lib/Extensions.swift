@@ -112,6 +112,38 @@ extension MPDisplay {
     var name: String {
         isSidecarDisplay ? "Sidecar" : (titleName ?? displayName ?? "Unknown name")
     }
+
+    var str: String {
+        """
+        "id": \(displayID)
+        "aliasID": \(aliasID)
+        "canChangeOrientation": \(canChangeOrientation())
+        "hasRotationSensor": \(hasRotationSensor)
+        "hasZeroRate": \(hasZeroRate)
+        "hasMultipleRates": \(hasMultipleRates)
+        "isSidecarDisplay": \(isSidecarDisplay)
+        "isAirPlayDisplay": \(isAirPlayDisplay)
+        "isProjector": \(isProjector)
+        "is4K": \(is4K)
+        "isTV": \(isTV)
+        "isMirrorMaster": \(isMirrorMaster)
+        "isMirrored": \(isMirrored)
+        "isBuiltIn": \(isBuiltIn)
+        "isHiDPI": \(isHiDPI)
+        "hasTVModes": \(hasTVModes)
+        "hasSimulscan": \(hasSimulscan)
+        "hasSafeMode": \(hasSafeMode)
+        "isSmartDisplay": \(isSmartDisplay)
+        "isAppleProDisplay": \(isAppleProDisplay)
+        "uuid": \((uuid?.uuidString ?? ""))
+        "isForcedToMirror": \(isForcedToMirror)
+        "hasMenuBar": \(hasMenuBar)
+        "isBuiltInRetina": \(isBuiltInRetina)
+        "titleName": \((titleName ?? ""))
+        "name": \((displayName ?? ""))
+        "orientation": \(orientation)
+        """
+    }
 }
 
 extension MPDisplayMgr {

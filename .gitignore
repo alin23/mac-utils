@@ -1,2 +1,4 @@
 bin/*-x86
 bin/*-arm64
+Screens.swift
+bin/Screens

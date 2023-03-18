@@ -18,6 +18,8 @@ bin/RotateDisplay: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/HorizontalMonitorLayout: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/VerticalMonitorLayout: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/MirrorMacBookToMonitor: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
+bin/SetNativeBrightness: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework DisplayServices -import-objc-header Headers/Bridging-Header.h
+bin/Screens: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/%: %.swift
 	mkdir -p /tmp/$* || true
 	cp -f $*.swift /tmp/$*/main.swift && \
@@ -26,5 +28,6 @@ bin/%: %.swift
 	lipo -create -output bin/$* bin/$*-* && \
 	rm /tmp/$*/main.swift
 
+watch: BIN=
 watch:
-	rg -t swift --files | entr make -j$$(nproc)
+	rg -t swift -t h --files | entr -rs 'echo \n--------\n; make -j$$(nproc) && ./bin/$(BIN)'
