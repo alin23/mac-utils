@@ -56,7 +56,7 @@ func main() {
 
     let arg = CommandLine.arguments[1].lowercased()
 
-    // Example: ToggleHDR on
+    // Example: `ToggleHDR on` or `ToggleHDR off`
     if let enabled = bool(arg) {
         for display in mgr.displays.filter(\.hasHDRModes) {
             toggleHDR(display: display, enabled: enabled)
@@ -64,28 +64,24 @@ func main() {
         return
     }
 
-    // Example: ToggleHDR all
+    let enabled = CommandLine.arguments.count >= 3 ? bool(CommandLine.arguments[2].lowercased()) : nil
+
+    // Example: `ToggleHDR all` or `ToggleHDR all on`
     if arg == "all" {
         for display in mgr.displays.filter(\.hasHDRModes) {
-            toggleHDR(display: display)
+            toggleHDR(display: display, enabled: enabled)
         }
         return
     }
 
+    // Example: `ToggleHDR DELL` or `ToggleHDR DELL on`
     guard let display = mgr.matchDisplay(filter: arg) else {
         print("\nNo display found for query: \(arg)")
 
         return
     }
 
-    // Example: ToggleHDR DELL on
-    if CommandLine.arguments.count >= 3, let enabled = bool(CommandLine.arguments[2].lowercased()) {
-        toggleHDR(display: display, enabled: enabled)
-        return
-    }
-
-    // Example: ToggleHDR DELL
-    toggleHDR(display: display)
+    toggleHDR(display: display, enabled: enabled)
 }
 
 main()
