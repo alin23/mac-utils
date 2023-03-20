@@ -8,19 +8,14 @@ if CommandLine.arguments.count >= 2, ["-h", "--help"].contains(CommandLine.argum
     exit(0)
 }
 
-class Camera: CustomStringConvertible {
-    private var id: CMIOObjectID
-    private var captureDevice: AVCaptureDevice
-    private var STATUS_PA = CMIOObjectPropertyAddress(
-        mSelector: CMIOObjectPropertySelector(kCMIODevicePropertyDeviceIsRunningSomewhere),
-        mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeWildcard),
-        mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementWildcard)
-    )
-    var isVirtual: Bool = false
+// MARK: - Camera
 
-    init(captureDevice: AVCaptureDevice){
+class Camera: CustomStringConvertible {
+    // MARK: Lifecycle
+
+    init(captureDevice: AVCaptureDevice) {
         self.captureDevice = captureDevice
-        self.id = captureDevice.value(forKey: "_connectionID")! as! CMIOObjectID
+        id = captureDevice.value(forKey: "_connectionID")! as! CMIOObjectID
 
         // Figure out if this is a virtual (DAL) device or an actual hardware device.
         // It seems that DAL devices have kCMIODevicePropertyLatency, while normal
@@ -37,6 +32,14 @@ class Camera: CustomStringConvertible {
         }
     }
 
+    // MARK: Public
+
+    public var description: String { "\(captureDevice.manufacturer)/\(captureDevice.localizedName)" }
+
+    // MARK: Internal
+
+    var isVirtual = false
+
     func isOn() -> Bool {
         // Test if the device is on through some magic. If the pointee is > 0, the device is active.
         var (dataSize, dataUsed) = (UInt32(0), UInt32(0))
@@ -49,7 +52,15 @@ class Camera: CustomStringConvertible {
         return false
     }
 
-    public var description: String { return "\(captureDevice.manufacturer)/\(captureDevice.localizedName)" }
+    // MARK: Private
+
+    private var id: CMIOObjectID
+    private var captureDevice: AVCaptureDevice
+    private var STATUS_PA = CMIOObjectPropertyAddress(
+        mSelector: CMIOObjectPropertySelector(kCMIODevicePropertyDeviceIsRunningSomewhere),
+        mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeWildcard),
+        mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementWildcard)
+    )
 }
 
 let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)

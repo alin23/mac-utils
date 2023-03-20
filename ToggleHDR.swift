@@ -2,12 +2,18 @@ import Cocoa
 import ColorSync
 import Foundation
 
-func toggleHDR(display: MPDisplay) {
+func toggleHDR(display: MPDisplay, enabled: Bool? = nil) {
     let id = display.displayID
     let name = display.displayName ?? ""
 
     guard display.hasHDRModes else {
         print("\nThe display does not support HDR control: \(name) [ID: \(id)]")
+        return
+    }
+
+    if let enabled {
+        print("\n\(enabled ? "Enabling" : "Disabling") HDR for \(name) [ID: \(id)]")
+        display.setPreferHDRModes(enabled)
         return
     }
 
@@ -32,7 +38,7 @@ func main() {
     printDisplays(displays)
 
     guard CommandLine.arguments.count >= 2 else {
-        print("\nUsage: \(CommandLine.arguments[0]) <id-uuid-or-name>")
+        print("\nUsage: \(CommandLine.arguments[0]) <id-uuid-or-name> [on/off]")
         return
     }
 
@@ -44,7 +50,12 @@ func main() {
         return
     }
 
-    toggleHDR(display: display)
+    if CommandLine.arguments.count >= 3 {
+        let arg = CommandLine.arguments[2].lowercased()
+        toggleHDR(display: display, enabled: ["on", "1", "true", "yes"].contains(arg) || arg.starts(with: "enable"))
+    } else {
+        toggleHDR(display: display)
+    }
 }
 
 main()

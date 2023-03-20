@@ -135,12 +135,12 @@ extension MPDisplay {
         "hasSafeMode": \(hasSafeMode)
         "isSmartDisplay": \(isSmartDisplay)
         "isAppleProDisplay": \(isAppleProDisplay)
-        "uuid": \((uuid?.uuidString ?? ""))
+        "uuid": \(uuid?.uuidString ?? "")
         "isForcedToMirror": \(isForcedToMirror)
         "hasMenuBar": \(hasMenuBar)
         "isBuiltInRetina": \(isBuiltInRetina)
-        "titleName": \((titleName ?? ""))
-        "name": \((displayName ?? ""))
+        "titleName": \(titleName ?? "")
+        "name": \(displayName ?? "")
         "orientation": \(orientation)
         """
     }
