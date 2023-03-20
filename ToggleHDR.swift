@@ -62,7 +62,7 @@ func main() {
 
     // Example: `ToggleHDR on` or `ToggleHDR off`
     if let enabled = bool(arg) {
-        for display in mgr.displays.filter(\.hasHDRModes) {
+        for display in displays.filter(\.hasHDRModes) {
             toggleHDR(display: display, enabled: enabled)
         }
         return
@@ -72,7 +72,7 @@ func main() {
 
     // Example: `ToggleHDR all` or `ToggleHDR all on`
     if arg == "all" {
-        for display in mgr.displays.filter(\.hasHDRModes) {
+        for display in displays.filter(\.hasHDRModes) {
             toggleHDR(display: display, enabled: enabled)
         }
         return

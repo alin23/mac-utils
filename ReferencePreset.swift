@@ -63,7 +63,7 @@ func main() {
 
     // Example: `ReferencePreset all 2`
     if display.lowercased() == "all" {
-        for display in mgr.displays.filter(\.hasPresets) {
+        for display in displays.filter(\.hasPresets) {
             setReferencePreset(display: display, presetFilter: preset)
         }
         return
