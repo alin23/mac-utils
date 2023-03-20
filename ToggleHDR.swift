@@ -27,22 +27,50 @@ func toggleHDR(display: MPDisplay, enabled: Bool? = nil) {
 }
 
 func printDisplays(_ displays: [MPDisplay]) {
-    print("ID\tUUID                             \tHDR Control\tName")
+    print("ID\tUUID                             \tSupports HDR\tHDR Enabled\tName")
     for panel in displays {
-        print("\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.hasHDRModes)      \t\(panel.displayName ?? "Unknown name")")
+        print(
+            "\(panel.displayID)\t\(panel.uuid?.uuidString ?? "")\t\(panel.hasHDRModes)      \t\(panel.preferHDRModes())    \t\(panel.displayName ?? "Unknown name")"
+        )
     }
 }
 
+func bool(_ arg: String) -> Bool? {
+    if ["on", "true", "yes"].contains(arg) || arg.starts(with: "enable") {
+        return true
+    }
+    if ["off", "false", "no"].contains(arg) || arg.starts(with: "disable") {
+        return false
+    }
+    return nil
+}
+
 func main() {
-    guard let mgr = MPDisplayMgr(), let displays = mgr.displays as? [MPDisplay] else { return }
+    guard let mgr = MPDisplayMgr(), let displays = mgr.displays else { return }
     printDisplays(displays)
 
     guard CommandLine.arguments.count >= 2 else {
-        print("\nUsage: \(CommandLine.arguments[0]) <id-uuid-or-name> [on/off]")
+        print("\nUsage: \(CommandLine.arguments[0]) [id/uuid/name/all] [on/off]")
         return
     }
 
-    let arg = CommandLine.arguments[1]
+    let arg = CommandLine.arguments[1].lowercased()
+
+    // Example: ToggleHDR on
+    if let enabled = bool(arg) {
+        for display in mgr.displays.filter(\.hasHDRModes) {
+            toggleHDR(display: display, enabled: enabled)
+        }
+        return
+    }
+
+    // Example: ToggleHDR all
+    if arg == "all" {
+        for display in mgr.displays.filter(\.hasHDRModes) {
+            toggleHDR(display: display)
+        }
+        return
+    }
 
     guard let display = mgr.matchDisplay(filter: arg) else {
         print("\nNo display found for query: \(arg)")
@@ -50,12 +78,14 @@ func main() {
         return
     }
 
-    if CommandLine.arguments.count >= 3 {
-        let arg = CommandLine.arguments[2].lowercased()
-        toggleHDR(display: display, enabled: ["on", "1", "true", "yes"].contains(arg) || arg.starts(with: "enable"))
-    } else {
-        toggleHDR(display: display)
+    // Example: ToggleHDR DELL on
+    if CommandLine.arguments.count >= 3, let enabled = bool(CommandLine.arguments[2].lowercased()) {
+        toggleHDR(display: display, enabled: enabled)
+        return
     }
+
+    // Example: ToggleHDR DELL
+    toggleHDR(display: display)
 }
 
 main()

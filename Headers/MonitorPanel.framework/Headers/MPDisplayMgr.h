@@ -45,7 +45,7 @@
 - (void)serviceReconfigure:(id)arg1;
 - (void)refreshDisplays;
 - (id)displayWithID:(int)arg1;
-@property(readonly) NSArray *displays;
+@property(readonly) NSArray<MPDisplay*> *displays;
 - (void)updateDisplaysList;
 - (void)nameDisplays:(id)arg1;
 - (void)dealloc;

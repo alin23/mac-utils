@@ -148,7 +148,7 @@ extension MPDisplay {
 
 extension MPDisplayMgr {
     func matchDisplay(filter: String) -> MPDisplay? {
-        guard let displays = displays as? [MPDisplay] else { return nil }
+        guard let displays else { return nil }
 
         if ["cursor", "current", "main"].contains(filter.lowercased()),
            let cursorDisplayID = NSScreen.withMouse?.displayID,
