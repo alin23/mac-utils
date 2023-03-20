@@ -2,6 +2,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <Foundation/Foundation.h>
 #import <OSD/OSDManager.h>
+#import <MonitorPanel/MPDisplayPreset.h>
 #import <MonitorPanel/MPDisplay.h>
 #import <MonitorPanel/MPDisplayMgr.h>
 #import <MonitorPanel/MPDisplayMode.h>

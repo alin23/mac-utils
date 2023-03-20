@@ -18,6 +18,7 @@ bin/RotateDisplay: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/HorizontalMonitorLayout: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/VerticalMonitorLayout: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/MirrorMacBookToMonitor: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
+bin/ReferencePreset: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/SetNativeBrightness: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework DisplayServices -import-objc-header Headers/Bridging-Header.h
 bin/Screens: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/%: %.swift

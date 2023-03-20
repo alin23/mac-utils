@@ -86,8 +86,8 @@
 @property unsigned int userFlags; // @synthesize userFlags=_userFlags;
 @property(readonly) int aliasID; // @synthesize aliasID=_aliasID;
 @property(readonly) int displayID; // @synthesize displayID=_displayID;
-- (BOOL)setActivePreset:(id)arg1;
-@property(readonly) NSArray *presets;
+- (BOOL)setActivePreset:(MPDisplayPreset *)arg1;
+@property(readonly) NSArray<MPDisplayPreset*> *presets;
 @property(readonly) BOOL hasPresets;
 @property(readonly) MPDisplayPreset *defaultPreset;
 - (void)buildPresetsList;
