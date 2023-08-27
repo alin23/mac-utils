@@ -6,6 +6,33 @@
 #import <MonitorPanel/MPDisplay.h>
 #import <MonitorPanel/MPDisplayMgr.h>
 #import <MonitorPanel/MPDisplayMode.h>
+#import <Cocoa/Cocoa.h>
+
+@class BrightnessSystemClient;
+
+@interface KeyboardBrightnessClient : NSObject
+{
+    BrightnessSystemClient *bsc;
+}
+
+- (void)registerNotificationForKeys:(id _Nonnull)arg1 keyboardID:(unsigned long long)arg2 block:(void)arg3;
+- (void)unregisterKeyboardNotificationBlock;
+- (BOOL)isAutoBrightnessEnabledForKeyboard:(unsigned long long)arg1;
+- (BOOL)setIdleDimTime:(double)arg1 forKeyboard:(unsigned long long)arg2;
+- (double)idleDimTimeForKeyboard:(unsigned long long)arg1;
+- (BOOL)isKeyboardBuiltIn:(unsigned long long)arg1;
+- (BOOL)isAmbientFeatureAvailableOnKeyboard:(unsigned long long)arg1;
+- (BOOL)enableAutoBrightness:(BOOL)arg1 forKeyboard:(unsigned long long)arg2;
+- (BOOL)setBrightness:(float)arg1 forKeyboard:(unsigned long long)arg2;
+- (float)brightnessForKeyboard:(unsigned long long)arg1;
+- (BOOL)isBacklightDimmedOnKeyboard:(unsigned long long)arg1;
+- (BOOL)isBacklightSaturatedOnKeyboard:(unsigned long long)arg1;
+- (BOOL)isBacklightSuppressedOnKeyboard:(unsigned long long)arg1;
+- (NSArray<NSNumber *> *_Nullable)copyKeyboardBacklightIDs;
+- (void)dealloc;
+- (id _Nonnull)init;
+
+@end
 
 double CoreDisplay_Display_GetUserBrightness(CGDirectDisplayID display);
 double CoreDisplay_Display_GetLinearBrightness(CGDirectDisplayID display);
@@ -42,32 +69,37 @@ bool IsLidClosed(void)
     CFTypeRef clamShellStateRef = NULL;
 
     IOReturn ioReturn = IOMasterPort(MACH_PORT_NULL, &masterPort);
-    if (ioReturn != 0) {
+    if (ioReturn != 0)
+    {
         return false;
     }
 
     rootDomain = IORegistryEntryFromPath(masterPort, kIOPowerPlane ":/IOPowerConnection/IOPMrootDomain");
 
     clamShellStateRef = IORegistryEntryCreateCFProperty(rootDomain, CFSTR("AppleClamshellState"), kCFAllocatorDefault, 0);
-    if (clamShellStateRef == NULL) {
-        if (rootDomain) {
+    if (clamShellStateRef == NULL)
+    {
+        if (rootDomain)
+        {
             IOObjectRelease(rootDomain);
             return false;
         }
     }
 
-    if (CFBooleanGetValue((CFBooleanRef)(clamShellStateRef)) == true) {
+    if (CFBooleanGetValue((CFBooleanRef)(clamShellStateRef)) == true)
+    {
         isClosed = true;
     }
 
-    if (rootDomain) {
+    if (rootDomain)
+    {
         IOObjectRelease(rootDomain);
     }
 
-    if (clamShellStateRef) {
+    if (clamShellStateRef)
+    {
         CFRelease(clamShellStateRef);
     }
 
     return isClosed;
 }
-

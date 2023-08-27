@@ -107,6 +107,15 @@ Works for the built-in MacBook and iMac screen, and Apple vendored displays like
 
 ---
 
+## SetKeyboardBacklight
+
+Set keyboard backlight brightness from the command line.
+
+- [SetKeyboardBacklight.swift](/SetKeyboardBacklight.swift)
+- [SetKeyboardBacklight (compiled binary)](/bin/SetKeyboardBacklight)
+
+---
+
 ## IsNowPlaying
 
 Prints true (or exits with code 0 on `-q`) if the Mac is currently playing any media.
