@@ -142,3 +142,11 @@ Activate presets for reference monitors like the Pro Display XDR or the MacBook 
 - [ReferencePreset (compiled binary)](/bin/ReferencePreset)
 
 ![reference presets in Display preferences](https://files.alinpanaitiu.com/reference-display-presets.png)
+
+## ApplyColorProfile
+
+Apply `.icc` color profiles to any display. It works even if the display does not have a color profile setting in System Settings.
+
+- [ApplyColorProfile.swift](/ApplyColorProfile.swift)
+- [ApplyColorProfile (compiled binary)](/bin/ApplyColorProfile)
+

@@ -11,8 +11,6 @@ if CommandLine.arguments.count >= 2, ["-h", "--help"].contains(CommandLine.argum
 // MARK: - Camera
 
 class Camera: CustomStringConvertible {
-    // MARK: Lifecycle
-
     init(captureDevice: AVCaptureDevice) {
         self.captureDevice = captureDevice
         id = captureDevice.value(forKey: "_connectionID")! as! CMIOObjectID
@@ -32,11 +30,7 @@ class Camera: CustomStringConvertible {
         }
     }
 
-    // MARK: Public
-
     public var description: String { "\(captureDevice.manufacturer)/\(captureDevice.localizedName)" }
-
-    // MARK: Internal
 
     var isVirtual = false
 
@@ -51,8 +45,6 @@ class Camera: CustomStringConvertible {
         }
         return false
     }
-
-    // MARK: Private
 
     private var id: CMIOObjectID
     private var captureDevice: AVCaptureDevice
