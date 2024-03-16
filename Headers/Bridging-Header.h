@@ -103,3 +103,5 @@ bool IsLidClosed(void)
 
     return isClosed;
 }
+
+CGError CGSEnableHDR(CGDirectDisplayID display, bool enable, int, int) __attribute__((weak_import));

@@ -22,6 +22,7 @@ bin/ReferencePreset: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/ApplyColorProfile: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/SetNativeBrightness: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework DisplayServices -import-objc-header Headers/Bridging-Header.h
 bin/SetKeyboardBacklight: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework CoreBrightness -import-objc-header Headers/Bridging-Header.h
+bin/ToggleBuiltinEDR: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework SkyLight -import-objc-header Headers/Bridging-Header.h
 bin/Screens: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/%: %.swift
 	mkdir -p /tmp/$* || true
