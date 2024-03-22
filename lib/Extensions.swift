@@ -202,6 +202,10 @@ extension BinaryInteger {
     var s: String { String(self) }
 }
 
+extension Int {
+    var i32: Int32 { Int32(self) }
+}
+
 extension Int32 {
     var cg: CGDirectDisplayID {
         CGDirectDisplayID(self)
