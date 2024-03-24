@@ -115,10 +115,13 @@ func printHelp() {
 func main() {
     guard let mgr = MPDisplayMgr(), let displays = mgr.displays else { return }
 
-    guard CommandLine.arguments.count >= 2 else {
-        if displays.count == 1, displays[0].hasHDRModes {
+    let try60Hz = CommandLine.arguments.contains("--try-60-hz")
+    let args = CommandLine.arguments.filter { arg in !["--try-60-hz"].contains(arg) }
+
+    guard args.count >= 2 else {
+        if displays.count == 1, displays[0].hasHDRModes || try60Hz {
             // If there is only one display, toggle the HDR on that display.
-            toggleHDR(display: displays[0])
+            toggleHDR(display: displays[0], try60Hz: try60Hz)
             return
         }
         printHelp()
@@ -126,7 +129,7 @@ func main() {
         return
     }
 
-    if CommandLine.arguments.contains("--help") || CommandLine.arguments.contains("-h") {
+    if args.contains("--help") || args.contains("-h") {
         printHelp()
         printDisplays(displays)
         return
@@ -136,8 +139,6 @@ func main() {
         print("")
         printDisplays(displays)
     }
-    let try60Hz = CommandLine.arguments.contains("--try-60-hz")
-    let args = CommandLine.arguments.filter { arg in !["--try-60-hz"].contains(arg) }
     let arg = args[1].lowercased()
 
     // Example: `ToggleHDR on` or `ToggleHDR off`
