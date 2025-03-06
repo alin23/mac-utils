@@ -2,7 +2,7 @@
 import Foundation
 
 if CommandLine.arguments.count >= 2, ["-h", "--help"].contains(CommandLine.arguments[1]) {
-    print("Usage: \(CommandLine.arguments[0]) [-q (exits with non-zero status code if not playing)]")
+    print("Usage: \(CommandLine.arguments[0]) [-q (exits with non-zero status code if not playing)] [-v (prints now playing info)]")
     exit(0)
 }
 
@@ -25,6 +25,35 @@ MRMediaRemoteGetNowPlayingApplicationIsPlaying(DispatchQueue.main) { playing in
     }
 
     exit(playing ? 0 : 1)
+}
+
+guard CommandLine.arguments.count >= 2, !CommandLine.arguments.contains("-q"), CommandLine.arguments.contains("-v") else {
+    RunLoop.main.run(until: Date() + 0.1)
+    exit(0)
+}
+
+let MRMediaRemoteGetNowPlayingInfoPointer = CFBundleGetFunctionPointerForName(
+    bundle,
+    "MRMediaRemoteGetNowPlayingInfo" as CFString
+)!
+typealias MRMediaRemoteGetNowPlayingInfoFunction = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
+let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(
+    MRMediaRemoteGetNowPlayingInfoPointer,
+    to: MRMediaRemoteGetNowPlayingInfoFunction.self
+)
+
+MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { info in
+    guard var info else {
+        print("No info")
+        exit(1)
+    }
+
+    // set kMRMediaRemoteNowPlayingInfoArtworkData to "exists" to avoid crash
+    if info["kMRMediaRemoteNowPlayingInfoArtworkData"] != nil {
+        info["kMRMediaRemoteNowPlayingInfoArtworkData"] = "exists"
+    }
+
+    print(info)
 }
 
 RunLoop.main.run(until: Date() + 0.1)

@@ -118,10 +118,22 @@ Set keyboard backlight brightness from the command line.
 
 ## IsNowPlaying
 
-Prints true (or exits with code 0 on `-q`) if the Mac is currently playing any media.
+Prints `true` (or exits with code `0` on `-q`) if the Mac is currently playing any media.
+
+Prints now playing media information with `-v` if the Mac is currently playing any media.
 
 - [IsNowPlaying.swift](/IsNowPlaying.swift)
-- [IsNowPlaying (compiled binary)](/bin/IsNowPlaying)
+- compiled binary
+    - [com.apple.controlcenter.mac-utils.IsNowPlaying (for macOS 15.4+)](/bin/com.apple.controlcenter.mac-utils.IsNowPlaying)
+    - [IsNowPlaying (for macOS 15.3 and older)](/bin/IsNowPlaying)
+
+> On macOS 15.4 and newer, the compiled binary has the Control Center bundle ID as a prefix to work around a restriction added in that macOS version.
+>
+> To keep using the `IsNowPlaying` command on macOS 15.4 and newer, you can symlink the binary to `IsNowPlaying`:
+>
+> ```sh
+> ln -s com.apple.controlcenter.mac-utils.IsNowPlaying IsNowPlaying
+> ```
 
 ---
 

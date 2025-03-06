@@ -23,6 +23,12 @@ bin/ApplyColorProfile: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/SetNativeBrightness: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework DisplayServices -import-objc-header Headers/Bridging-Header.h
 bin/SetKeyboardBacklight: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework CoreBrightness -import-objc-header Headers/Bridging-Header.h
 bin/Screens: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
+bin/IsNowPlaying: IsNowPlaying.swift
+	swiftc -target arm64-apple-macos10.15.4 IsNowPlaying.swift -o bin/com.apple.controlcenter.mac-utils.IsNowPlaying-arm64 && \
+	swiftc -target x86_64-apple-macos10.15.4 IsNowPlaying.swift -o bin/com.apple.controlcenter.mac-utils.IsNowPlaying-x86 && \
+	lipo -create -output bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/com.apple.controlcenter.mac-utils.IsNowPlaying-* && \
+	cp -f bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/IsNowPlaying && \
+    test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/IsNowPlaying
 bin/%: %.swift
 	mkdir -p /tmp/$* || true
 	cp -f $*.swift /tmp/$*/main.swift && \
