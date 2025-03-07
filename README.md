@@ -162,3 +162,11 @@ Apply `.icc` color profiles to any display. It works even if the display does no
 - [ApplyColorProfile.swift](/ApplyColorProfile.swift)
 - [ApplyColorProfile (compiled binary)](/bin/ApplyColorProfile)
 
+---
+
+## SendMediaKey
+
+Send media key events such as play/pause, next, previous, volume up, volume down, mute, etc.
+
+- [SendMediaKey.swift](/SendMediaKey.swift)
+- [SendMediaKey (compiled binary)](/bin/SendMediaKey)
