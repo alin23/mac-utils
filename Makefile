@@ -28,7 +28,7 @@ bin/IsNowPlaying: IsNowPlaying.swift
 	swiftc -target x86_64-apple-macos10.15.4 IsNowPlaying.swift -o bin/com.apple.controlcenter.mac-utils.IsNowPlaying-x86 && \
 	lipo -create -output bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/com.apple.controlcenter.mac-utils.IsNowPlaying-* && \
 	cp -f bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/IsNowPlaying && \
-    test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/IsNowPlaying
+    test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/IsNowPlaying
 bin/%: %.swift
 	mkdir -p /tmp/$* || true
 	cp -f $*.swift /tmp/$*/main.swift && \
