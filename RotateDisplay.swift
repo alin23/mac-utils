@@ -25,7 +25,7 @@ func printDisplays(_ displays: [MPDisplay]) {
 }
 
 func main() {
-    guard let mgr = MPDisplayMgr(), let displays = mgr.displays as? [MPDisplay] else { return }
+    guard let mgr = MPDisplayMgr(), let displays = mgr.displays else { return }
     printDisplays(displays)
 
     guard CommandLine.arguments.count >= 3, let orientation = Int32(CommandLine.arguments[2]),

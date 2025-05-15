@@ -28,16 +28,23 @@ bin/IsNowPlaying: IsNowPlaying.swift
 	swiftc -target x86_64-apple-macos10.15.4 IsNowPlaying.swift -o bin/com.apple.controlcenter.mac-utils.IsNowPlaying-x86 && \
 	lipo -create -output bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/com.apple.controlcenter.mac-utils.IsNowPlaying-* && \
 	cp -f bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/IsNowPlaying && \
+	rm -f bin/IsNowPlaying-* bin/com.apple.controlcenter.mac-utils.IsNowPlaying-* && \
     test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/IsNowPlaying
-bin/%: %.swift
-	mkdir -p /tmp/$* || true
-	cp -f $*.swift /tmp/$*/main.swift && \
-	swiftc $(SWIFTC_FLAGS) -target arm64-apple-macos10.15.4 /tmp/$*/main.swift -o bin/$*-arm64 && \
-	swiftc $(SWIFTC_FLAGS) -target x86_64-apple-macos10.15.4 /tmp/$*/main.swift -o bin/$*-x86 && \
+bin/%: bin/%-arm64 bin/%-x86
 	lipo -create -output bin/$* bin/$*-* && \
     test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/$*
-	@rm /tmp/$*/main.swift
-
+bin/%-arm64: build/%-arm64/main.swift
+	mkdir -p ./bin
+	swiftc $(SWIFTC_FLAGS) -target arm64-apple-macos10.15.4 ./build/$*-arm64/main.swift -o bin/$*-arm64
+bin/%-x86: build/%-x86/main.swift
+	mkdir -p ./bin
+	swiftc $(SWIFTC_FLAGS) -target x86_64-apple-macos10.15.4 ./build/$*-x86/main.swift -o bin/$*-x86
+build/%-arm64/main.swift: %.swift
+	mkdir -p ./build/$*-arm64 || true
+	cp -f $*.swift ./build/$*-arm64/main.swift
+build/%-x86/main.swift: %.swift
+	mkdir -p ./build/$*-x86 || true
+	cp -f $*.swift ./build/$*-x86/main.swift
 notarize:
 	@rm bin/*-arm64 bin/*-x86 || true
 	zip /tmp/bins.zip bin/*
@@ -46,3 +53,10 @@ notarize:
 watch: BIN=
 watch:
 	rg -u -t swift -t h --files | entr -rs 'echo \n--------\n; make -j$$(nproc) && ./bin/$(BIN)'
+
+clean:
+	rm -rf bin
+	rm -rf build
+	rm -f /tmp/bins.zip
+	rm -f bin/*-arm64
+	rm -f bin/*-x86
