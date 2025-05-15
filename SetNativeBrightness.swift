@@ -7,4 +7,3 @@ guard CommandLine.arguments.count >= 3, let id = UInt32(CommandLine.arguments[1]
 }
 
 DisplayServicesSetBrightness(id, br)
-DisplayServicesBrightnessChanged(id, Double(br))

@@ -55,7 +55,6 @@ bool DisplayServicesCanChangeBrightness(CGDirectDisplayID display);
 bool DisplayServicesHasAmbientLightCompensation(CGDirectDisplayID display);
 bool DisplayServicesAmbientLightCompensationEnabled(CGDirectDisplayID display);
 bool DisplayServicesIsSmartDisplay(CGDirectDisplayID display);
-void DisplayServicesBrightnessChanged(CGDirectDisplayID display, double brightness);
 
 extern int SLSMainConnectionID(void);
 CGError SLSGetDisplayList(uint32_t maxDisplays, CGDirectDisplayID *activeDisplays, uint32_t *displayCount);
