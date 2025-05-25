@@ -2,6 +2,14 @@
 
 Small utilities for macOS
 
+## Building
+
+To build the utilities, you need to have Xcode or CommandLine Tools installed. Then, run the following command in the terminal inside the `mac-utils` directory:
+
+```sh
+make -j$(nproc)
+```
+
 ## runfg
 
 Run any command ensuring that the process won't be sent to the Apple Silicon efficiency cores.
