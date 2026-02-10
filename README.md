@@ -178,3 +178,12 @@ Send media key events such as play/pause, next, previous, volume up, volume down
 
 - [SendMediaKey.swift](/SendMediaKey.swift)
 - [SendMediaKey (compiled binary)](/bin/SendMediaKey)
+
+---
+
+## ALS
+
+Read the ambient light sensor (lux) value from your Mac. Useful for automating brightness and color temperature adjustments.
+
+- [ALS.swift](/ALS.swift)
+- [ALS (compiled binary)](/bin/ALS)

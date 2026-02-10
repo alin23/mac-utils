@@ -8,6 +8,10 @@
 #import <MonitorPanel/MPDisplayMode.h>
 #import <Cocoa/Cocoa.h>
 
+#import <IOKit/IOKitLib.h>
+#import <IOKit/hidsystem/IOHIDServiceClient.h>
+
+
 @class BrightnessSystemClient;
 
 @interface KeyboardBrightnessClient : NSObject
@@ -102,3 +106,9 @@ bool IsLidClosed(void)
 
     return isClosed;
 }
+
+
+typedef struct __IOHIDEvent *IOHIDEventRef;
+IOHIDEventRef IOHIDServiceClientCopyEvent(IOHIDServiceClientRef, int64_t, int32_t, int64_t);
+double IOHIDEventGetFloatValue(IOHIDEventRef, int32_t);
+IOHIDServiceClientRef ALCALSCopyALSServiceClient(void);

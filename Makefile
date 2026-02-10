@@ -12,6 +12,7 @@ MONITOR_COMPILER_FLAGS = \
     -import-objc-header Headers/Bridging-Header.h \
     lib/Extensions.swift
 
+bin/ALS: SWIFTC_FLAGS=-F$$PWD/Headers -F/System/Library/PrivateFrameworks -framework BezelServices -import-objc-header Headers/Bridging-Header.h
 bin/SwapMonitors: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/ToggleHDR: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)
 bin/RotateDisplay: SWIFTC_FLAGS=$(MONITOR_COMPILER_FLAGS)

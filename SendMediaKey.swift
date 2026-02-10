@@ -34,7 +34,7 @@ func printUsage() {
 }
 
 let arguments = CommandLine.arguments
-guard arguments.count > 1 && !(arguments.contains("-h") || arguments.contains("--help")) else {
+guard arguments.count > 1, !(arguments.contains("-h") || arguments.contains("--help")) else {
     printUsage()
     exit(1)
 }
