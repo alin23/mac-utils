@@ -32,13 +32,13 @@ configure { config in
     )
 
     if macBookDisplay == mainDisplay {
-        let monitorX = (max(monitorBounds.width, macBookBounds.width) - min(monitorBounds.width, macBookBounds.width)) / -2
+        let monitorX = (macBookBounds.width - monitorBounds.width) / 2
         let monitorY = -monitorBounds.height
 
         print("\nNew external display coordinates: x=\(monitorX) y=\(monitorY)")
         CGConfigureDisplayOrigin(config, externalDisplay, Int32(monitorX.rounded()), Int32(monitorY.rounded()))
     } else {
-        let monitorX = (max(macBookBounds.width, monitorBounds.width) - min(macBookBounds.width, monitorBounds.width)) / 2
+        let monitorX = (monitorBounds.width - macBookBounds.width) / 2
         let monitorY = monitorBounds.height
 
         print("\nNew internal display coordinates: x=\(monitorX) y=\(monitorY)")

@@ -20,8 +20,8 @@ configure { config in
         "External Display: x=\(monitorBounds.origin.x) y=\(monitorBounds.origin.y) width=\(monitorBounds.width) height=\(monitorBounds.height)"
     )
 
-    let monitorX = CommandLine.arguments.contains("left") ? -monitorBounds.width : monitorBounds.width
-    let monitorY = (max(monitorBounds.height, macBookBounds.height) - min(monitorBounds.height, macBookBounds.height)) / -2
+    let monitorX = CommandLine.arguments.contains("left") ? -monitorBounds.width : macBookBounds.width
+    let monitorY = (macBookBounds.height - monitorBounds.height) / 2
 
     print("\nNew external display coordinates: x=\(monitorX) y=\(monitorY)")
     CGConfigureDisplayOrigin(config, otherDisplay, Int32(monitorX.rounded()), Int32(monitorY.rounded()))
