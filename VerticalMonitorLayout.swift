@@ -3,6 +3,11 @@ import Cocoa
 import Foundation
 
 configure { config in
+    print("Usage: \(CommandLine.arguments[0]) [--external-main|--macbook-main] (default: preserve current main display)\n")
+
+    let makeExternalMain = CommandLine.arguments.contains("--external-main")
+    let makeMacBookMain = CommandLine.arguments.contains("--macbook-main")
+
     let mainDisplay = CGMainDisplayID()
     var macBookDisplay: CGDirectDisplayID
     var externalDisplay: CGDirectDisplayID
@@ -31,18 +36,24 @@ configure { config in
         "External Display: x=\(monitorBounds.origin.x) y=\(monitorBounds.origin.y) width=\(monitorBounds.width) height=\(monitorBounds.height)"
     )
 
-    if macBookDisplay == mainDisplay {
+    if makeExternalMain || !makeMacBookMain && externalDisplay == mainDisplay {
+        print("\nNew external display coordinates: x=0 y=0")
+        CGConfigureDisplayOrigin(config, externalDisplay, 0, 0)
+
+        let macBookX = (monitorBounds.width - macBookBounds.width) / 2
+        let macBookY = monitorBounds.height
+
+        print("\nNew internal display coordinates: x=\(macBookX) y=\(macBookY)")
+        CGConfigureDisplayOrigin(config, macBookDisplay, Int32(macBookX.rounded()), Int32(macBookY.rounded()))
+    } else {
+        print("\nNew internal display coordinates: x=0 y=0")
+        CGConfigureDisplayOrigin(config, macBookDisplay, 0, 0)
+
         let monitorX = (macBookBounds.width - monitorBounds.width) / 2
         let monitorY = -monitorBounds.height
 
         print("\nNew external display coordinates: x=\(monitorX) y=\(monitorY)")
         CGConfigureDisplayOrigin(config, externalDisplay, Int32(monitorX.rounded()), Int32(monitorY.rounded()))
-    } else {
-        let monitorX = (monitorBounds.width - macBookBounds.width) / 2
-        let monitorY = monitorBounds.height
-
-        print("\nNew internal display coordinates: x=\(monitorX) y=\(monitorY)")
-        CGConfigureDisplayOrigin(config, macBookDisplay, Int32(monitorX.rounded()), Int32(monitorY.rounded()))
     }
 
     return true
