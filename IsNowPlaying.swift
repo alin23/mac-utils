@@ -42,6 +42,29 @@ let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(
     to: MRMediaRemoteGetNowPlayingInfoFunction.self
 )
 
+let iso8601 = ISO8601DateFormatter()
+
+// Recursively convert MediaRemote values into JSON-serializable ones,
+// since the info dict contains Date, Data and other non-JSON types.
+func jsonSerializable(_ value: Any) -> Any {
+    switch value {
+    case let date as Date:
+        return iso8601.string(from: date)
+    case let data as Data:
+        return "<\(data.count) bytes>"
+    case let array as [Any]:
+        return array.map(jsonSerializable)
+    case let dict as [String: Any]:
+        return dict.mapValues(jsonSerializable)
+    case let number as NSNumber:
+        return number
+    case let string as String:
+        return string
+    default:
+        return String(describing: value)
+    }
+}
+
 MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { info in
     guard var info else {
         print("No info")
@@ -53,7 +76,15 @@ MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { info in
         info["kMRMediaRemoteNowPlayingInfoArtworkData"] = "exists"
     }
 
-    print(info)
+    let sanitized = info.mapValues(jsonSerializable)
+    if let data = try? JSONSerialization.data(
+        withJSONObject: sanitized,
+        options: [.prettyPrinted, .sortedKeys]
+    ), let json = String(data: data, encoding: .utf8) {
+        print(json)
+    } else {
+        print(info)
+    }
 }
 
 RunLoop.main.run(until: Date() + 0.1)
