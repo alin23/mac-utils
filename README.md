@@ -145,6 +145,24 @@ Prints now playing media information with `-v` if the Mac is currently playing a
 
 ---
 
+## NowPlayingClients
+
+Lists every Now Playing client (one per playing or paused media app) with its title, playback rate, elapsed time and duration.
+
+- `list` (default): prints all clients, one per line (pass `--json` for JSON)
+- `watch [filter]`: polls every second and prints `pid bundle state elapsed/duration title`, optionally filtered by a bundle-id substring
+- `play`, `pause`, `playpause`, `stop`, `next`, `previous` `<bundleID>`: sends that transport command to a client
+- `seek <bundleID> <seconds>`: seeks a client to an absolute position
+
+- [NowPlayingClients.swift](/NowPlayingClients.swift)
+- compiled binary
+    - [com.apple.controlcenter.mac-utils.NowPlayingClients (for macOS 15.4+)](/bin/com.apple.controlcenter.mac-utils.NowPlayingClients)
+    - [NowPlayingClients (for macOS 15.3 and older)](/bin/NowPlayingClients)
+
+> On macOS 15.4 and newer, the compiled binary has the Control Center bundle ID as a prefix to work around a restriction added in that macOS version.
+
+---
+
 ## IsCameraOn
 
 Prints true (or exits with code 0 on `-q`) if the Mac camera is in use by any application.

@@ -31,6 +31,13 @@ bin/IsNowPlaying: IsNowPlaying.swift
 	cp -f bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/IsNowPlaying && \
 	rm -f bin/IsNowPlaying-* bin/com.apple.controlcenter.mac-utils.IsNowPlaying-* && \
     test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/com.apple.controlcenter.mac-utils.IsNowPlaying bin/IsNowPlaying
+bin/NowPlayingClients: NowPlayingClients.swift
+	swiftc -target arm64-apple-macos10.15.4 NowPlayingClients.swift -o bin/com.apple.controlcenter.mac-utils.NowPlayingClients-arm64 && \
+	swiftc -target x86_64-apple-macos10.15.4 NowPlayingClients.swift -o bin/com.apple.controlcenter.mac-utils.NowPlayingClients-x86 && \
+	lipo -create -output bin/com.apple.controlcenter.mac-utils.NowPlayingClients bin/com.apple.controlcenter.mac-utils.NowPlayingClients-* && \
+	cp -f bin/com.apple.controlcenter.mac-utils.NowPlayingClients bin/NowPlayingClients && \
+	rm -f bin/NowPlayingClients-* bin/com.apple.controlcenter.mac-utils.NowPlayingClients-* && \
+    test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/com.apple.controlcenter.mac-utils.NowPlayingClients bin/NowPlayingClients
 bin/%: bin/%-arm64 bin/%-x86
 	lipo -create -output bin/$* bin/$*-* && \
     test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/$*
