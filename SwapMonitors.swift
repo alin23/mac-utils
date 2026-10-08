@@ -41,14 +41,10 @@ func swap(firstDisplay: CGDirectDisplayID, secondDisplay: CGDirectDisplayID, rot
           let display2 = displays.first(where: { $0.displayID == secondDisplay })
     else { return }
 
+    guard display1.orientation != display2.orientation else { return }
     guard display1.canChangeOrientation(), display2.canChangeOrientation()
     else {
-        print("The monitors don't have the ability to change orientation")
-        return
-    }
-    guard display1.orientation != display2.orientation
-    else {
-        print("Orientation is the same for both monitors")
+        print("The monitors have different orientations but they can't be swapped: one of them can't change orientation")
         return
     }
     let rotation1 = display1.orientation
@@ -75,7 +71,7 @@ let screenMapping = [CGDirectDisplayID: NSScreen](uniqueKeysWithValues: ids.comp
 let screenGroupsByName = [String: [NSScreen]](
     grouping: NSScreen.screens, by: { screen in
         let s = screen.localizedName
-        return NAME_STRIP_REGEX.stringByReplacingMatches(in: s, range: NSMakeRange(0, s.count), withTemplate: "$1")
+        return NAME_STRIP_REGEX.stringByReplacingMatches(in: s, range: NSRange(s.startIndex..., in: s), withTemplate: "$1")
     }
 )
 
@@ -121,12 +117,16 @@ func main() {
         let secondDisplay = CGDirectDisplayID(second)
 
         guard ids.contains(firstDisplay) else {
-            print("Display \(firstDisplay) not found")
-            return
+            fputs("Display \(firstDisplay) not found\n", stderr)
+            exit(1)
         }
         guard ids.contains(secondDisplay) else {
-            print("Display \(secondDisplay) not found")
-            return
+            fputs("Display \(secondDisplay) not found\n", stderr)
+            exit(1)
+        }
+        guard firstDisplay != secondDisplay else {
+            fputs("Pass two different displays\n", stderr)
+            exit(1)
         }
         swap(firstDisplay: firstDisplay, secondDisplay: secondDisplay, rotation: !noSwapRotation)
         return
@@ -149,14 +149,14 @@ func main() {
 
         print("\nPass the IDs of the display that you want to swap as arguments")
         print("Example: \(args[0]) \(sortedIDs.first!) \(sortedIDs.last!)")
-        return
+        exit(1)
     }
 
     guard let firstDisplay = externalIDs.first,
           let secondDisplay = externalIDs.first(where: { $0 != firstDisplay })
     else {
-        print("At least two external displays are needed")
-        return
+        fputs("At least two external displays are needed\n", stderr)
+        exit(1)
     }
 
     swap(firstDisplay: firstDisplay, secondDisplay: secondDisplay, rotation: !noSwapRotation)

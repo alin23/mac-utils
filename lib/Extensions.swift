@@ -2,25 +2,32 @@ import Cocoa
 
 let NAME_STRIP_REGEX = try! NSRegularExpression(pattern: #"(.+)\s+\(\s*\d+\s*\)\s*$"#)
 
+/// Runs `action` inside a display configuration transaction. Exits with status 1 when the action
+/// returns false or the configuration can't be applied, so scripts can tell that nothing changed.
 func configure(_ action: (CGDisplayConfigRef) -> Bool) {
     var configRef: CGDisplayConfigRef?
     var err = CGBeginDisplayConfiguration(&configRef)
     guard err == .success, let config = configRef else {
-        print("Error with CGBeginDisplayConfiguration: \(err)")
-        return
+        fputs("Error with CGBeginDisplayConfiguration: \(err)\n", stderr)
+        exit(1)
     }
 
     guard action(config) else {
         _ = CGCancelDisplayConfiguration(config)
-        return
+        exit(1)
     }
 
     err = CGCompleteDisplayConfiguration(config, .permanently)
     guard err == .success else {
-        print("Error with CGCompleteDisplayConfiguration")
+        fputs("Error with CGCompleteDisplayConfiguration: \(err)\n", stderr)
         _ = CGCancelDisplayConfiguration(config)
-        return
+        exit(1)
     }
+}
+
+/// The built-in display, falling back to the main display on Macs without one (or with the lid closed).
+var builtinOrMainDisplayID: CGDirectDisplayID {
+    NSScreen.onlineDisplayIDs.first { CGDisplayIsBuiltin($0) != 0 } ?? CGMainDisplayID()
 }
 
 extension NSScreen {
@@ -170,7 +177,15 @@ extension MPDisplayMgr {
         if filter == "builtin" || filter == "built-in", let display = displays.first(where: \.isBuiltIn) {
             return display
         }
-        if let display = displays.first(where: { $0.displayName?.lowercased() == filter }) {
+        if let display = displays.first(where: { $0.displayName?.lowercased() == filter || $0.titleName?.lowercased() == filter }) {
+            return display
+        }
+        // Partial names like "dell" for "DELL U2723QE": prefix first, then anywhere in the name
+        let names = displays.map { ($0, [$0.displayName, $0.titleName].compactMap { $0?.lowercased() }) }
+        if let (display, _) = names.first(where: { $0.1.contains { $0.hasPrefix(filter) } }) {
+            return display
+        }
+        if let (display, _) = names.first(where: { $0.1.contains { $0.contains(filter) } }) {
             return display
         }
 

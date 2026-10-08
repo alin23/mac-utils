@@ -103,8 +103,8 @@ func getInternalSensor() -> InternalSensor? {
 
 var internalSensor: InternalSensor? {
     didSet {
-        if let sensor = internalSensor, sensor.service != 0 {
-            IOObjectRelease(sensor.service)
+        if let old = oldValue, old.service != 0, old.service != internalSensor?.service {
+            IOObjectRelease(old.service)
         }
     }
 }
@@ -114,11 +114,7 @@ func IOServiceProperty<T>(_ service: io_service_t, _ key: String) -> T? {
     else {
         return nil
     }
-    guard let value = cfProp.takeRetainedValue() as? T else {
-        cfProp.release()
-        return nil
-    }
-    return value
+    return cfProp.takeRetainedValue() as? T
 }
 
 func IOServiceParentName(_ service: io_service_t) -> String? {
@@ -126,6 +122,7 @@ func IOServiceParentName(_ service: io_service_t) -> String? {
     IORegistryEntryGetParentEntry(service, kIOServicePlane, &serv)
 
     guard serv != 0 else { return nil }
+    defer { IOObjectRelease(serv) }
     return IOServiceName(serv)
 }
 
@@ -175,10 +172,10 @@ while i < CommandLine.arguments.count {
         isListening = true
     case "-i", "--interval":
         i += 1
-        if i < CommandLine.arguments.count, let intervalValue = Double(CommandLine.arguments[i]) {
+        if i < CommandLine.arguments.count, let intervalValue = Double(CommandLine.arguments[i]), intervalValue > 0 {
             interval = intervalValue
         } else {
-            fputs("Error: --interval requires a numeric value\n", stderr)
+            fputs("Error: --interval requires a positive number of seconds\n", stderr)
             exit(1)
         }
     case "--window-average":
@@ -231,8 +228,11 @@ guard let sensor = internalSensor else {
 }
 
 if isListening {
-    // Listen mode: print lux values periodically
-    Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
+    // Line buffered, so values reach a pipe as they are read instead of in 4 KB chunks
+    setvbuf(stdout, nil, _IOLBF, 0)
+
+    // Listen mode: print lux values periodically, starting right away
+    let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
         if let lux = sensor.lux {
             let average = computeLuxWindowAverage(lux: lux)
             if isBare {
@@ -244,6 +244,7 @@ if isListening {
             fputs("Error: Failed to read lux value\n", stderr)
         }
     }
+    timer.fire()
     RunLoop.main.run()
 } else {
     // Default mode: print current lux once and exit

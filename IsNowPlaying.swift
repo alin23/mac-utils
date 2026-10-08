@@ -1,10 +1,13 @@
 #!/usr/bin/env swift
 import Foundation
 
-if CommandLine.arguments.count >= 2, ["-h", "--help"].contains(CommandLine.arguments[1]) {
-    print("Usage: \(CommandLine.arguments[0]) [-q (exits with non-zero status code if not playing)] [-v (prints now playing info)]")
+let args = CommandLine.arguments
+if args.contains("-h") || args.contains("--help") {
+    print("Usage: \(args[0]) [-q (exits with non-zero status code if not playing)] [-v (prints now playing info)]")
     exit(0)
 }
+let quiet = args.contains("-q")
+let verbose = args.contains("-v") && !quiet
 
 let bundle = CFBundleCreate(kCFAllocatorDefault, NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework"))!
 
@@ -17,20 +20,6 @@ let MRMediaRemoteGetNowPlayingApplicationIsPlaying = unsafeBitCast(
     MRMediaRemoteGetNowPlayingApplicationIsPlayingPointer,
     to: MRMediaRemoteGetNowPlayingApplicationIsPlayingFunction.self
 )
-
-MRMediaRemoteGetNowPlayingApplicationIsPlaying(DispatchQueue.main) { playing in
-    guard CommandLine.arguments.count >= 2, CommandLine.arguments[1] == "-q" else {
-        print(playing)
-        return
-    }
-
-    exit(playing ? 0 : 1)
-}
-
-guard CommandLine.arguments.count >= 2, !CommandLine.arguments.contains("-q"), CommandLine.arguments.contains("-v") else {
-    RunLoop.main.run(until: Date() + 0.1)
-    exit(0)
-}
 
 let MRMediaRemoteGetNowPlayingInfoPointer = CFBundleGetFunctionPointerForName(
     bundle,
@@ -65,7 +54,7 @@ func jsonSerializable(_ value: Any) -> Any {
     }
 }
 
-MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { info in
+func printInfo(_ info: [String: Any]?) {
     guard var info else {
         print("No info")
         exit(1)
@@ -87,4 +76,27 @@ MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { info in
     }
 }
 
-RunLoop.main.run(until: Date() + 0.1)
+// The answers arrive asynchronously, wait for them instead of a fixed delay
+// (a slow MediaRemote reply used to print nothing and exit 0)
+var pending = verbose ? 2 : 1
+func answered() {
+    pending -= 1
+    if pending == 0 { exit(0) }
+}
+
+MRMediaRemoteGetNowPlayingApplicationIsPlaying(DispatchQueue.main) { playing in
+    if quiet { exit(playing ? 0 : 1) }
+    print(playing)
+    answered()
+}
+
+if verbose {
+    MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { info in
+        printInfo(info)
+        answered()
+    }
+}
+
+RunLoop.main.run(until: Date() + 3)
+FileHandle.standardError.write("MediaRemote did not answer within 3 seconds\n".data(using: .utf8)!)
+exit(1)

@@ -15,49 +15,56 @@ extension UUID {
     }
 }
 
-func setDisplayProfile(_ path: String, _ display: MPDisplay) {
+@discardableResult
+func setDisplayProfile(_ path: String, _ display: MPDisplay) -> Bool {
+    let displayName = display.displayName ?? "display"
+    // `uuid` is implicitly unwrapped in the private header, and nil for some virtual displays
+    guard let displayUUID = display.uuid as UUID? else {
+        fputs("\(displayName) has no UUID, ColorSync can't target it\n", stderr)
+        return false
+    }
+    let uuid = displayUUID.cfUUID
+
     if path == "factory" {
-        print("Resetting profile for \(display.displayName ?? "display") to factory default")
+        print("Resetting profile for \(displayName) to factory default")
 
         let profileDict = [DEFAULT_PROFILE: nil] as CFDictionary
-        guard ColorSyncDeviceSetCustomProfiles(DEVICE_CLASS, display.uuid.cfUUID, profileDict) else {
-            print("Failed to set factory profile")
-            return
+        guard ColorSyncDeviceSetCustomProfiles(DEVICE_CLASS, uuid, profileDict) else {
+            fputs("Failed to set factory profile for \(displayName)\n", stderr)
+            return false
         }
-        return
+        return true
     }
 
-    print("Setting profile \(path) for \(display.displayName ?? "display")")
-    let iccURL = URL(fileURLWithPath: path)
-    let uuid = display.uuid.cfUUID
+    // ColorSync keeps the URL, so a path relative to the current directory has to be made absolute
+    let iccURL = URL(fileURLWithPath: path).absoluteURL.standardizedFileURL
 
     var err: Unmanaged<CFError>?
     guard let profile = ColorSyncProfileCreateWithURL(iccURL as CFURL, &err)?.takeRetainedValue() else {
-        print("Failed to create profile from \(path)")
-        return
+        fputs("Failed to create profile from \(path)\(err.map { ": \($0.takeRetainedValue())" } ?? "")\n", stderr)
+        return false
     }
 
     let profileName = ColorSyncProfileCopyDescriptionString(profile)?.takeRetainedValue() as String? ?? iccURL.deletingPathExtension().lastPathComponent
-    print("Profile name: \(profileName)")
+    print("Setting profile \"\(profileName)\" for \(displayName)")
 
-    guard let deviceInfo = ColorSyncDeviceCopyDeviceInfo(DEVICE_CLASS, uuid)?.takeRetainedValue() else {
-        print("Failed to get device info for \(uuid)")
-        return
+    guard ColorSyncDeviceCopyDeviceInfo(DEVICE_CLASS, uuid) != nil else {
+        fputs("ColorSync doesn't know \(displayName) [\(displayUUID)]\n", stderr)
+        return false
     }
-    print("Device info: \(deviceInfo)")
 
-    print("Setting profile \(profileName) for \(uuid)")
     let profileDict = [DEFAULT_PROFILE: iccURL] as CFDictionary
     guard ColorSyncDeviceSetCustomProfiles(DEVICE_CLASS, uuid, profileDict) else {
-        print("Failed to set custom profile")
-        return
+        fputs("Failed to set custom profile for \(displayName)\n", stderr)
+        return false
     }
+    return true
 }
 
 func main() {
     guard let mgr = MPDisplayMgr(), let displays = mgr.displays else {
-        print("No displays")
-        return
+        fputs("No displays\n", stderr)
+        exit(1)
     }
 
     guard CommandLine.arguments.count >= 3 else {
@@ -67,32 +74,32 @@ func main() {
         display: Can be a display ID, UUID, or name. Use "all" to apply to all displays.
         profile: Path to an ICC profile. Use "factory" to reset to default.
         """)
-        return
+        exit(CommandLine.arguments.count == 1 ? 0 : 1)
     }
 
     let display = CommandLine.arguments[1]
     let profilePath = CommandLine.arguments[2]
     guard FileManager.default.fileExists(atPath: profilePath) || profilePath == "factory" else {
-        print("File not found: \(profilePath)")
-        return
+        fputs("File not found: \(profilePath)\n", stderr)
+        exit(1)
     }
 
     // Example: `ApplyColorProfile all HighAmbientLight.icc`
     if display.lowercased() == "all" {
-        for display in displays.filter(\.hasPresets) {
-            setDisplayProfile(profilePath, display)
+        var failed = false
+        for display in displays where !setDisplayProfile(profilePath, display) {
+            failed = true
         }
-        return
+        exit(failed ? 1 : 0)
     }
 
     // Example: `ApplyColorProfile DELL HighAmbientLight.icc`
     guard let display = mgr.matchDisplay(filter: display) else {
-        print("No display found for query: \(display)")
-
-        return
+        fputs("No display found for query: \(display)\n", stderr)
+        exit(1)
     }
 
-    setDisplayProfile(profilePath, display)
+    if !setDisplayProfile(profilePath, display) { exit(1) }
 }
 
 main()

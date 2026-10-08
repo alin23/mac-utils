@@ -11,9 +11,10 @@ if CommandLine.arguments.count >= 2, ["-h", "--help"].contains(CommandLine.argum
 // MARK: - Camera
 
 class Camera: CustomStringConvertible {
-    init(captureDevice: AVCaptureDevice) {
+    init?(captureDevice: AVCaptureDevice) {
+        guard let id = captureDevice.value(forKey: "_connectionID") as? CMIOObjectID else { return nil }
         self.captureDevice = captureDevice
-        id = captureDevice.value(forKey: "_connectionID")! as! CMIOObjectID
+        self.id = id
 
         // Figure out if this is a virtual (DAL) device or an actual hardware device.
         // It seems that DAL devices have kCMIODevicePropertyLatency, while normal
@@ -37,13 +38,13 @@ class Camera: CustomStringConvertible {
     func isOn() -> Bool {
         // Test if the device is on through some magic. If the pointee is > 0, the device is active.
         var (dataSize, dataUsed) = (UInt32(0), UInt32(0))
-        if CMIOObjectGetPropertyDataSize(id, &STATUS_PA, 0, nil, &dataSize) == OSStatus(kCMIOHardwareNoError) {
-            if let data = malloc(Int(dataSize)) {
-                CMIOObjectGetPropertyData(id, &STATUS_PA, 0, nil, dataSize, &dataUsed, data)
-                return data.assumingMemoryBound(to: UInt8.self).pointee > 0
-            }
-        }
-        return false
+        guard CMIOObjectGetPropertyDataSize(id, &STATUS_PA, 0, nil, &dataSize) == OSStatus(kCMIOHardwareNoError), dataSize > 0,
+              let data = malloc(Int(dataSize))
+        else { return false }
+        defer { free(data) }
+
+        guard CMIOObjectGetPropertyData(id, &STATUS_PA, 0, nil, dataSize, &dataUsed, data) == OSStatus(kCMIOHardwareNoError) else { return false }
+        return data.assumingMemoryBound(to: UInt8.self).pointee > 0
     }
 
     private var id: CMIOObjectID
@@ -55,19 +56,18 @@ class Camera: CustomStringConvertible {
     )
 }
 
-let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
-let devices = discoverySession.devices
-var cameraInUse = false
-
-for device in devices {
-    let camera = Camera(captureDevice: device)
-    if camera.isOn() {
-        cameraInUse = true
-        break
-    }
+// USB webcams, Studio Display cameras and Continuity Camera count too, not only the built-in one
+var deviceTypes: [AVCaptureDevice.DeviceType] = [.builtInWideAngleCamera]
+if #available(macOS 14.0, *) {
+    deviceTypes += [.external, .continuityCamera]
+} else {
+    deviceTypes += [.externalUnknown]
 }
 
-guard CommandLine.arguments.count >= 2, CommandLine.arguments[1] == "-q" else {
+let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: deviceTypes, mediaType: .video, position: .unspecified)
+let cameraInUse = discoverySession.devices.contains { Camera(captureDevice: $0)?.isOn() ?? false }
+
+guard CommandLine.arguments.contains("-q") else {
     print(cameraInUse)
     exit(0)
 }

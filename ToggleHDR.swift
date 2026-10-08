@@ -4,7 +4,8 @@ import Foundation
 
 let userDefaultsSuiteName = "com.alin23.ToggleHDR"
 
-func toggleHDR(display: MPDisplay, enabled: Bool? = nil, try60Hz: Bool = false) {
+@discardableResult
+func toggleHDR(display: MPDisplay, enabled: Bool? = nil, try60Hz: Bool = false) -> Bool {
     let id = display.displayID
     let name = display.displayName ?? ""
 
@@ -12,22 +13,35 @@ func toggleHDR(display: MPDisplay, enabled: Bool? = nil, try60Hz: Bool = false) 
     let newHDRState = enabled ?? !hdrIsCurrentlyEnabled
     guard newHDRState != hdrIsCurrentlyEnabled else {
         print("HDR is already \(newHDRState ? "enabled" : "disabled") for \(name) [ID: \(id)]")
-        return
+        return true
     }
 
     if try60Hz, newHDRState, !display.hasHDRModes, let scanRate = display.currentMode.scanRate,
        scanRate.intValue > 60, forceEnableHDR60Hertz(display: display)
     {
         display.setPreferHDRModes(true)
-        return
+        return true
     }
 
     guard display.hasHDRModes else {
-        print("The display does not support HDR control: \(name) [ID: \(id)]")
-        return
+        fputs("The display does not support HDR control: \(name) [ID: \(id)]\n", stderr)
+        return false
     }
 
     updatePreferHDR(display: display, enabled: newHDRState)
+    return true
+}
+
+/// Toggles every HDR capable display, exiting with 1 when there are none.
+func toggleAll(_ displays: [MPDisplay], enabled: Bool?, try60Hz: Bool) {
+    let capable = displays.filter { $0.hasHDRModes || try60Hz }
+    guard !capable.isEmpty else {
+        fputs("No connected display supports HDR control (pass --try-60-hz to try enabling it at 60 Hz)\n", stderr)
+        exit(1)
+    }
+    for display in capable {
+        toggleHDR(display: display, enabled: enabled, try60Hz: try60Hz)
+    }
 }
 
 func printDisplays(_ displays: [MPDisplay]) {
@@ -113,7 +127,10 @@ func printHelp() {
 }
 
 func main() {
-    guard let mgr = MPDisplayMgr(), let displays = mgr.displays else { return }
+    guard let mgr = MPDisplayMgr(), let displays = mgr.displays else {
+        fputs("No displays\n", stderr)
+        exit(1)
+    }
 
     let try60Hz = CommandLine.arguments.contains("--try-60-hz")
     let args = CommandLine.arguments.filter { arg in !["--try-60-hz"].contains(arg) }
@@ -121,12 +138,11 @@ func main() {
     guard args.count >= 2 else {
         if displays.count == 1, displays[0].hasHDRModes || try60Hz {
             // If there is only one display, toggle the HDR on that display.
-            toggleHDR(display: displays[0], try60Hz: try60Hz)
-            return
+            exit(toggleHDR(display: displays[0], try60Hz: try60Hz) ? 0 : 1)
         }
         printHelp()
         printDisplays(displays)
-        return
+        exit(1)
     }
 
     if args.contains("--help") || args.contains("-h") {
@@ -143,29 +159,33 @@ func main() {
 
     // Example: `ToggleHDR on` or `ToggleHDR off`
     if let enabled = bool(arg) {
-        for display in displays.filter({ $0.hasHDRModes || try60Hz }) {
-            toggleHDR(display: display, enabled: enabled, try60Hz: try60Hz)
-        }
+        toggleAll(displays, enabled: enabled, try60Hz: try60Hz)
         return
     }
 
-    let enabled = args.count >= 3 ? bool(args[2].lowercased()) : nil
+    // A typo in the state would otherwise silently toggle instead
+    var enabled: Bool?
+    if args.count >= 3 {
+        guard let state = bool(args[2].lowercased()) else {
+            fputs("Unknown state: \(args[2]) (use on or off)\n", stderr)
+            exit(1)
+        }
+        enabled = state
+    }
 
     // Example: `ToggleHDR all` or `ToggleHDR all on`
     if arg == "all" {
-        for display in displays.filter({ $0.hasHDRModes || try60Hz }) {
-            toggleHDR(display: display, enabled: enabled, try60Hz: try60Hz)
-        }
+        toggleAll(displays, enabled: enabled, try60Hz: try60Hz)
         return
     }
 
     // Example: `ToggleHDR DELL` or `ToggleHDR DELL on`
     guard let display = mgr.matchDisplay(filter: arg) else {
-        print("No display found for query: \(arg)")
-        return
+        fputs("No display found for query: \(arg)\n", stderr)
+        exit(1)
     }
 
-    toggleHDR(display: display, enabled: enabled, try60Hz: try60Hz)
+    if !toggleHDR(display: display, enabled: enabled, try60Hz: try60Hz) { exit(1) }
 }
 
 main()

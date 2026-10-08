@@ -77,6 +77,9 @@ func withClient(_ bundleID: String, _ body: @escaping (AnyObject) -> Void) {
     }
 }
 
+// Line buffered, so `watch` output reaches a pipe as it happens instead of in 4 KB chunks
+setvbuf(stdout, nil, _IOLBF, 0)
+
 let raw = Array(CommandLine.arguments.dropFirst())
 let asJSON = raw.contains("--json")
 let positional = raw.filter { !$0.hasPrefix("-") }
@@ -122,6 +125,7 @@ func sendCommand(_ code: Int32, to bundleID: String, userInfo: CFDictionary? = n
     withClient(bundleID) { client in
         let ret = send(code, userInfo, origin, client, nil, nil, done)
         print("\(bundleID): \(note ?? command) (\(ret))")
+        if !ret { exit(1) }
     }
     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { exit(0) }  // safety net
     RunLoop.main.run(until: Date() + 3.0); exit(0)
@@ -141,7 +145,9 @@ case "list":
         }
         exit(0)
     }
-    RunLoop.main.run(until: Date() + 3.0); exit(0)
+    RunLoop.main.run(until: Date() + 3.0)
+    FileHandle.standardError.write(Data("MediaRemote did not answer within 3 seconds\n".utf8))
+    exit(1)
 
 case "watch":
     let filter = positional.count > 1 ? positional[1].lowercased() : nil

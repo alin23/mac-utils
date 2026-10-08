@@ -34,14 +34,18 @@ func printUsage() {
 }
 
 let arguments = CommandLine.arguments
-guard arguments.count > 1, !(arguments.contains("-h") || arguments.contains("--help")) else {
+if arguments.contains("-h") || arguments.contains("--help") {
+    printUsage()
+    exit(0)
+}
+guard arguments.count > 1 else {
     printUsage()
     exit(1)
 }
 
 let keyString = arguments[1]
 guard let mediaKey = mediaKey(for: keyString) else {
-    print("Error: Invalid key name '\(keyString)'")
+    fputs("Error: Invalid key name '\(keyString)'\n", stderr)
     printUsage()
     exit(1)
 }
