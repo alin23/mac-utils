@@ -205,3 +205,20 @@ Read the ambient light sensor (lux) value from your Mac. Useful for automating b
 
 - [ALS.swift](/ALS.swift)
 - [ALS (compiled binary)](/bin/ALS)
+
+---
+
+## OCRRegion
+
+Copy the text from any region of the screen. Line breaks, indentation, bullet and numbered lists stay as they were, tables become tab-separated rows, and the language is detected on its own. If the selection is mostly a QR code or barcode, it gets decoded instead. A toast at the bottom of the screen shows what was copied.
+
+- `OCRRegion`: select a region and copy what's in it
+- `--install [shortcut]`: capture on a global shortcut, kept across logins (default `cmd+shift+2`)
+- `--uninstall`: remove that shortcut
+- `--listen [shortcut]`: same shortcut, running in the foreground, nothing installed
+- `OCRRegion <image>`: print what an image contains
+
+Needs macOS 26 or newer.
+
+- [OCRRegion.swift](/OCRRegion.swift)
+- [OCRRegion (compiled binary)](/bin/OCRRegion)

@@ -38,6 +38,13 @@ bin/NowPlayingClients: NowPlayingClients.swift
 	cp -f bin/com.apple.controlcenter.mac-utils.NowPlayingClients bin/NowPlayingClients && \
 	rm -f bin/NowPlayingClients-* bin/com.apple.controlcenter.mac-utils.NowPlayingClients-* && \
     test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/com.apple.controlcenter.mac-utils.NowPlayingClients bin/NowPlayingClients
+bin/OCRRegion: OCRRegion.swift
+	mkdir -p ./bin
+	swiftc -O -target arm64-apple-macos26.0 OCRRegion.swift -o bin/OCRRegion-arm64 && \
+	swiftc -O -target x86_64-apple-macos26.0 OCRRegion.swift -o bin/OCRRegion-x86 && \
+	lipo -create -output bin/OCRRegion bin/OCRRegion-arm64 bin/OCRRegion-x86 && \
+	rm -f bin/OCRRegion-arm64 bin/OCRRegion-x86 && \
+    test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/OCRRegion
 bin/%: bin/%-arm64 bin/%-x86
 	lipo -create -output bin/$* bin/$*-* && \
     test -z "$$CODESIGN_CERT" || /usr/bin/codesign -fs "$$CODESIGN_CERT" --options runtime --timestamp bin/$*
